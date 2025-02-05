@@ -1,0 +1,42 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "dev" ]  # Déclenchement sur les push vers la branche 'dev'
+  pull_request:
+    branches: [ "dev" ]  # Déclenchement lors de la création ou mise à jour d'une PR vers la branche 'dev'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Utilisation de l'environnement Ubuntu pour les builds
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]  # Test avec plusieurs versions de Node.js
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4  # Cloner le code source depuis le dépôt GitHub
+
+    - name: Set up Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4  # Installer la version de Node.js selon la matrice
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
+
+    - name: Install dependencies
+      run: npm ci  # Installe les dépendances en utilisant 'npm ci' pour garantir une installation propre
+
+    - name: Run ESLint
+      run: npm run lint  # Exécuter ESLint pour vérifier la qualité du code
+
+    - name: Run build
+      run: npm run build --if-present  # Exécuter le build si un script 'build' est défini dans package.json
+
+    - name: Run tests
+      run: npm test  # Exécuter les tests unitaires ou d'intégration
+
+ 
