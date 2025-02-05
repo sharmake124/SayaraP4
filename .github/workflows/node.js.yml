@@ -1,45 +1,45 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: estlint/ prettier check
 
 on:
   push:
-    branches: [ "dev" ]  # Déclenchement sur la branche 'dev'
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "dev" ]  # Déclenchement lors de la création ou mise à jour d'une PR vers la branche 'dev'
+    branches: [ "dev" ]
 
 jobs:
   lint:
-    runs-on: ubuntu-latest  # Utilisation de l'environnement Ubuntu pour l'exécution des tests
-
-    strategy:
-      matrix:
-        node-version: [16.x, 18.x, 20.x]  # Test avec plusieurs versions de Node.js
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Cloner le code source depuis le dépôt GitHub
+      uses: actions/checkout@v4
 
-    - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4  # Installer la version de Node.js selon la matrice
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
+    - name: Vérifier la structure des fichiers
+      run: ls -R
 
-    - name: Install dependencies
-      run: npm ci  # Installe les dépendances en utilisant 'npm ci' pour garantir une installation propre
+    - name: Installer les dépendances du Frontend
+      run: |
+        cd Frontend
+        npm ci
 
-    - name: Run ESLint
-      run: npm run lint  # Exécuter ESLint pour vérifier la qualité du code
+    - name: Installer les dépendances du Backend
+      run: |
+        cd Backend
+        npm ci
 
-    - name: Run Prettier
-      run: npm run prettier:check  # Exécuter Prettier pour vérifier le formatage du code
+    - name: Lancer ESLint sur le Frontend
+      run: |
+        cd Frontend
+        npm run lint
+
+    - name: Lancer ESLint sur le Backend
+      run: |
+        cd Backend
+        npm run lint
 
 
 
 
-
-   
-
- 
