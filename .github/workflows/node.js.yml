@@ -26,8 +26,13 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
 
+    # Installer les dépendances globales à la racine
     - name: Install root dependencies
       run: npm ci  # Installe les dépendances à la racine (package.json principal)
+
+    # Installer les dépendances frontend dans le répertoire 'Frontend'
+    - name: Install frontend dependencies
+      run: npm ci --prefix Frontend  # Installe les dépendances spécifiées dans frontend/package.json
 
     # Lint et tests frontend
     - name: Run ESLint on frontend
@@ -39,6 +44,10 @@ jobs:
     - name: Run tests frontend
       run: npm test --prefix Frontend  # Utilise le répertoire 'Frontend'
 
+    # Installer les dépendances backend dans le répertoire 'Backend'
+    - name: Install backend dependencies
+      run: npm ci --prefix Backend  # Installe les dépendances spécifiées dans backend/package.json
+
     # Lint et tests backend
     - name: Run ESLint on backend
       run: npm run lint --prefix Backend  # Utilise le répertoire 'Backend'
@@ -48,7 +57,6 @@ jobs:
 
     - name: Run tests backend
       run: npm test --prefix Backend  # Utilise le répertoire 'Backend'
-
 
 
 
