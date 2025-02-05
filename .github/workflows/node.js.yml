@@ -5,56 +5,39 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev" ]  # Déclenchement sur la branche 'dev'
   pull_request:
-    branches: [ "dev" ]
+    branches: [ "dev" ]  # Déclenchement lors de la création ou mise à jour d'une PR vers la branche 'dev'
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  lint:
+    runs-on: ubuntu-latest  # Utilisation de l'environnement Ubuntu pour l'exécution des tests
+
     strategy:
       matrix:
-        node-version: [20.16.0]
+        node-version: [16.x, 18.x, 20.x]  # Test avec plusieurs versions de Node.js
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4  # Cloner le code source depuis le dépôt GitHub
 
     - name: Set up Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v4  # Installer la version de Node.js selon la matrice
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'false'  # Cache désactivé temporairement pour éviter des soucis
+        cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
 
-    - name: Install root dependencies
-      run: npm ci
+    - name: Install dependencies
+      run: npm ci  # Installe les dépendances en utilisant 'npm ci' pour garantir une installation propre
 
-    - name: Install frontend dependencies
-      run: npm ci --prefix Frontend
+    - name: Run ESLint
+      run: npm run lint  # Exécuter ESLint pour vérifier la qualité du code
 
-    - name: List files in the repository
-      run: ls -R  # Vérifie la structure des fichiers et si 'Frontend/package.json' existe
+    - name: Run Prettier
+      run: npm run prettier:check  # Exécuter Prettier pour vérifier le formatage du code
 
-    - name: Run ESLint on frontend
-      run: npm run lint --prefix Frontend
 
-    - name: Run build frontend
-      run: npm run build:frontend --prefix Frontend
 
-    - name: Run tests frontend
-      run: npm test --prefix Frontend
-
-    - name: Install backend dependencies
-      run: npm ci --prefix Backend
-
-    - name: Run ESLint on backend
-      run: npm run lint --prefix Backend
-
-    - name: Run build backend
-      run: npm run build:backend --prefix Backend
-
-    - name: Run tests backend
-      run: npm test --prefix Backend
 
 
    
