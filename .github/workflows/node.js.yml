@@ -11,7 +11,10 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Utilisation de l'environnement Ubuntu pour les builds
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]  # Test avec plusieurs versions de Node.js
 
     steps:
     - name: Checkout code
@@ -21,28 +24,32 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
 
     - name: Install root dependencies
-      run: npm ci  # Installe les dépendances de la racine du projet
+      run: npm ci  # Installe les dépendances à la racine (package.json principal)
 
+    # Lint et tests frontend
     - name: Run ESLint on frontend
-      run: npm run lint --prefix frontend  # Exécute ESLint dans le répertoire 'frontend'
+      run: npm run lint --prefix Frontend  # Utilise le répertoire 'Frontend'
 
     - name: Run build frontend
-      run: npm run build:frontend  # Exécute le build du frontend
+      run: npm run build:frontend --prefix Frontend  # Utilise le répertoire 'Frontend'
 
     - name: Run tests frontend
-      run: npm run test --prefix frontend  # Exécute les tests du frontend
+      run: npm test --prefix Frontend  # Utilise le répertoire 'Frontend'
 
+    # Lint et tests backend
     - name: Run ESLint on backend
-      run: npm run lint --prefix backend  # Exécute ESLint dans le répertoire 'backend'
+      run: npm run lint --prefix Backend  # Utilise le répertoire 'Backend'
 
     - name: Run build backend
-      run: npm run build:backend  # Exécute le build du backend
+      run: npm run build:backend --prefix Backend  # Utilise le répertoire 'Backend'
 
     - name: Run tests backend
-      run: npm run test --prefix backend  # Exécute les tests du backend
+      run: npm test --prefix Backend  # Utilise le répertoire 'Backend'
+
+
 
 
    
