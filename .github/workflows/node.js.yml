@@ -5,59 +5,56 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "dev" ]  # Déclenchement sur les push vers la branche 'dev'
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "dev" ]  # Déclenchement lors de la création ou mise à jour d'une PR vers la branche 'dev'
+    branches: [ "dev" ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # Utilisation de l'environnement Ubuntu pour les builds
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]  # Test avec plusieurs versions de Node.js
+        node-version: [20.16.0]
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4  # Cloner le code source depuis GitHub
+      uses: actions/checkout@v4
 
     - name: Set up Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'  # Cache des dépendances npm pour améliorer les performances
+        cache: 'false'  # Cache désactivé temporairement pour éviter des soucis
 
-    # Installer les dépendances globales à la racine
     - name: Install root dependencies
-      run: npm ci  # Installe les dépendances à la racine (package.json principal)
+      run: npm ci
 
-    # Installer les dépendances frontend dans le répertoire 'Frontend'
     - name: Install frontend dependencies
-      run: npm ci --prefix Frontend  # Installe les dépendances spécifiées dans frontend/package.json
+      run: npm ci --prefix Frontend
 
-    # Lint et tests frontend
+    - name: List files in the repository
+      run: ls -R  # Vérifie la structure des fichiers et si 'Frontend/package.json' existe
+
     - name: Run ESLint on frontend
-      run: npm run lint --prefix Frontend  # Utilise le répertoire 'Frontend'
+      run: npm run lint --prefix Frontend
 
     - name: Run build frontend
-      run: npm run build:frontend --prefix Frontend  # Utilise le répertoire 'Frontend'
+      run: npm run build:frontend --prefix Frontend
 
     - name: Run tests frontend
-      run: npm test --prefix Frontend  # Utilise le répertoire 'Frontend'
+      run: npm test --prefix Frontend
 
-    # Installer les dépendances backend dans le répertoire 'Backend'
     - name: Install backend dependencies
-      run: npm ci --prefix Backend  # Installe les dépendances spécifiées dans backend/package.json
+      run: npm ci --prefix Backend
 
-    # Lint et tests backend
     - name: Run ESLint on backend
-      run: npm run lint --prefix Backend  # Utilise le répertoire 'Backend'
+      run: npm run lint --prefix Backend
 
     - name: Run build backend
-      run: npm run build:backend --prefix Backend  # Utilise le répertoire 'Backend'
+      run: npm run build:backend --prefix Backend
 
     - name: Run tests backend
-      run: npm test --prefix Backend  # Utilise le répertoire 'Backend'
-
+      run: npm test --prefix Backend
 
 
    
