@@ -8,6 +8,8 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
 
   const navigate = useNavigate();
 
@@ -22,18 +24,38 @@ export default function RegisterForm() {
     setPassword(event.target.value);
   };
 
+
+  const validatePassword = (password: string): boolean => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return regex.test(password);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const { success } = await registerService({
-      username,
-      email,
-      password,
-    });
-
-    if (success) {
+    setError("");
+  
+    if (!validatePassword(password)) {
+      setError(
+        "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre."
+      );
+      return;
+    }
+  
+    const response = await registerService({ username, email, password });
+  
+    if (response.success) {
       navigate("/login");
+    } else {
+      if (response.error === "EMAIL_ALREADY_EXISTS") {
+        setError("Cet email est déjà utilisé.");
+      } else if (response.error === "USERNAME_ALREADY_EXISTS") {
+        setError("Ce nom d'utilisateur est déjà pris.");
+      } else {
+        setError("Erreur lors de l'inscription. Veuillez réessayer.");
+      }
     }
   };
+  
 
   return (
     <Paper
@@ -41,7 +63,7 @@ export default function RegisterForm() {
       onSubmit={handleSubmit}
       sx={{
         width: "20rem",
-        height: "50vh",
+        height: "60vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -160,6 +182,20 @@ export default function RegisterForm() {
           justifyContent: "space-around",
         }}
       >
+        {error && (
+                  <Typography
+                    sx={{
+                      color: "red",
+                      fontSize: "0.75rem",
+                      width: "85%",
+                      textAlign: "left",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {error}
+                  </Typography>
+                )}
+
         <Typography
           sx={{
             fontSize: "0.8rem",

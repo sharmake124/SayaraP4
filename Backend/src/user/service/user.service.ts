@@ -1,9 +1,9 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
-import { UserDto } from '../dto/user.dto';
-import { UserEntity } from '../entity/user.entity';
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import * as bcrypt from "bcrypt";
+import { Repository } from "typeorm";
+import { UserDto } from "../dto/user.dto";
+import { UserEntity } from "../entity/user.entity";
 
 @Injectable()
 export class UserService {
@@ -15,37 +15,30 @@ export class UserService {
   ) {}
 
   validatePassword(password: string): boolean {
-    const passwordRegex = /^(?=.*[A-Z]).{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     return passwordRegex.test(password);
   }
-  
 
   async create(userDto: UserDto, password: string): Promise<UserDto> {
     try {
-      
       const existingUser = await this.findByEmail(userDto.email);
       if (existingUser) {
-        throw new HttpException(
-          'Email déjà utilisé.',
-          HttpStatus.BAD_REQUEST
-        );
+        throw new HttpException("Email déjà utilisé.", HttpStatus.BAD_REQUEST);
       }
 
       if (!this.validatePassword(password)) {
         throw new HttpException(
-          'Le mot de passe doit contenir au moins 8 caractères et une lettre majuscule.',
+          "Le mot de passe doit contenir au moins 8 caractères, une lettre majuscule, une lettre minuscule et un chiffre.",
           HttpStatus.BAD_REQUEST
         );
       }
-      
+
       const hashedPassword = await bcrypt.hash(password, this.saltRounds);
 
-      
       const user = new UserEntity();
       Object.assign(user, userDto);
       user.password = hashedPassword;
 
-      
       const savedUser = await this.userRepository.save(user);
       return savedUser;
     } catch (error) {
@@ -56,20 +49,9 @@ export class UserService {
     }
   }
 
-
-
- 
-
-  
-
-
   findByEmail(email: string): Promise<UserEntity | undefined> {
     return this.userRepository.findOne({ where: { email } });
   }
-
-
-
-
 
   async findById(userId: number): Promise<UserEntity | undefined> {
     try {
@@ -79,7 +61,7 @@ export class UserService {
 
       if (!user) {
         throw new HttpException(
-          'L\'utilisateur est introuvable',
+          "L'utilisateur est introuvable",
           HttpStatus.NOT_FOUND
         );
       }

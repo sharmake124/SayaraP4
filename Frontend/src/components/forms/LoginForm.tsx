@@ -8,6 +8,7 @@ import LoginRegisterBtn from "../buttons/LoginRegisterBtn";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const { login } = useUserContext();
   const navigate = useNavigate();
@@ -20,17 +21,25 @@ export default function LoginForm() {
     setPassword(event.target.value);
   };
 
+  
+
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+   
+
+    setError(""); 
 
     const response = await loginService({ email, password });
 
     if (response.success && response.user) {
-      login(response.user);
-      navigate("/");
+      login(response.user); 
+      navigate("/"); 
     } else {
-      console.error("Login failed:", response.error);
-      navigate("/login");
+      if (response.error) {
+        setError("Email ou mot de passe incorrect.");
+      }
     }
   };
 
@@ -40,12 +49,13 @@ export default function LoginForm() {
       onSubmit={handleSubmit}
       sx={{
         width: "20rem",
-        height: "40vh",
+        height: "auto",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         gap: "0.5rem",
         borderRadius: "0.5rem",
+        paddingBottom: "1rem",
       }}
     >
       <Typography
@@ -65,7 +75,6 @@ export default function LoginForm() {
       <Box
         sx={{
           width: "100%",
-          height: "40%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -80,10 +89,9 @@ export default function LoginForm() {
           onChange={handleMailChange}
           sx={{
             width: "85%",
+            marginBottom: "1rem",
             "& .MuiOutlinedInput-root ": {
               height: "5.5vh",
-              display: "flex",
-              alignItems: "center",
               "&.Mui-focused fieldset": {
                 borderColor: "#321F47",
               },
@@ -105,10 +113,9 @@ export default function LoginForm() {
           onChange={handlePasswordChange}
           sx={{
             width: "85%",
+            marginBottom: "0.5rem",
             "& .MuiOutlinedInput-root ": {
               height: "5.5vh",
-              display: "flex",
-              alignItems: "center",
               "&.Mui-focused fieldset": {
                 borderColor: "#321F47",
               },
@@ -122,11 +129,23 @@ export default function LoginForm() {
             },
           }}
         />
+        {error && (
+          <Typography
+            sx={{
+              color: "red",
+              fontSize: "0.75rem",
+              width: "85%",
+              textAlign: "left",
+              marginBottom: "0.5rem",
+            }}
+          >
+            {error}
+          </Typography>
+        )}
       </Box>
       <Box
         sx={{
           width: "80%",
-          height: "25%",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
